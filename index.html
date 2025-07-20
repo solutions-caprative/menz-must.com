@@ -129,7 +129,7 @@
   </footer>
 
   <script>
-    const BACKEND_URL = "https://YOUR_BACKEND_URL"; // <--- REPLACE this with your deployed backend URL
+    const BACKEND_URL = "https://mm-razorpay-server.onrender.com"; // <--- REPLACE this with your deployed backend URL
 
     async function payNow(productName, amount) {
       try {
@@ -146,7 +146,7 @@
 
         // 2. Open Razorpay checkout with order ID
         const options = {
-          key: "YOUR_RAZORPAY_KEY_ID", // Replace with your Razorpay Key ID (public)
+          key: "rzp_test_QOr7aQhszxNo72", // Replace with your Razorpay Key ID (public)
           amount: order.amount,
           currency: "INR",
           name: "Menz Must",
