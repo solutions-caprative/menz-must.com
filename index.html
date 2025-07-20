@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Menz Must – Men’s Accessories</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    header {
+      background: #222222;
+      color: #fff;
+      text-align: center;
+      padding: 1rem;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .product-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      text-align: center;
+    }
+    .product-card img {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 0.5rem;
+    }
+    button {
+      background: #222;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #444;
+    }
+    footer {
+      background: #222;
+      color: #ddd;
+      text-align: center;
+      padding: 1rem;
+      margin-top: 2rem;
+    }
+  </style>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+  <header>
+    <img src="loloo.jpg" style="height: 150px;">
+  </header>
+
+  <section class="products">
+    <div class="product-card">
+      <img src="purse.jpg" alt="Wallet" />
+      <h3>Leather Wallet</h3>
+      <p>₹999</p>
+      <button onclick="payNow('Leather Wallet', 99900)">Buy Now</button>
+    </div>
+    <div class="product-card">
+      <img src="bracelet.jpg" alt="Bracelet" />
+      <h3>Stylish Bracelet</h3>
+      <p>₹599</p>
+      <button onclick="payNow('Stylish Bracelet', 59900)">Buy Now</button>
+    </div>
+    <div class="product-card">
+      <img src="wood-sunglasses.jpg" alt="Sunglasses" />
+      <h3>Classic Sunglasses</h3>
+      <p>₹799</p>
+      <button onclick="payNow('Classic Sunglasses', 79900)">Buy Now</button>
+    </div>
+    <div class="product-card">
+      <img src="belt-5538613_1280.jpg" alt="Belt" />
+      <h3>Leather Belt</h3>
+      <p>₹699</p>
+      <button onclick="payNow('Leather Belt', 69900)">Buy Now</button>
+    </div>
+    <div class="product-card">
+      <img src="analog-watch.jpg" alt="Watch" />
+      <h3>Analog Watch</h3>
+      <p>₹1,499</p>
+      <button onclick="payNow('Analog Watch', 149900)">Buy Now</button>
+    </div>
+    <div class="product-card">
+      <img src="cap.jpg" alt="Cap" />
+      <h3>Baseball Cap</h3>
+      <p>₹299</p>
+      <button onclick="payNow('Baseball Cap', 29900)">Buy Now</button>
+    </div>
+    <div class="product-card">
+      <img src="red-bow-tie.jpg" alt="Tie" />
+      <h3>Silk Tie</h3>
+      <p>₹349</p>
+      <button onclick="payNow('Silk Tie', 34900)">Buy Now</button>
+    </div>
+    <div class="product-card">
+      <img src="sock.jpg" alt="Socks" />
+      <h3>Formal Socks</h3>
+      <p>₹199</p>
+      <button onclick="payNow('Formal Socks', 19900)">Buy Now</button>
+    </div>
+    <div class="product-card">
+      <img src="peace.jpg" alt="Keychain" />
+      <h3>Metal Keychain</h3>
+      <p>₹149</p>
+      <button onclick="payNow('Metal Keychain', 14900)">Buy Now</button>
+    </div>
+    <div class="product-card">
+      <img src="mens-leather-gloves.jpg" alt="Gloves" />
+      <h3>Leather Gloves</h3>
+      <p>₹899</p>
+      <button onclick="payNow('Leather Gloves', 89900)">Buy Now</button>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Menz Must. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const BACKEND_URL = "https://YOUR_BACKEND_URL"; // <--- REPLACE this with your deployed backend URL
+
+    async function payNow(productName, amount) {
+      try {
+        // 1. Create Razorpay order from your backend
+        const orderRes = await fetch(`${BACKEND_URL}/create-order`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount, product: productName }),
+        });
+
+        if (!orderRes.ok) throw new Error("Failed to create order");
+
+        const order = await orderRes.json();
+
+        // 2. Open Razorpay checkout with order ID
+        const options = {
+          key: "YOUR_RAZORPAY_KEY_ID", // Replace with your Razorpay Key ID (public)
+          amount: order.amount,
+          currency: "INR",
+          name: "Menz Must",
+          description: productName,
+          order_id: order.id,
+          handler: async function (response) {
+            // 3. Verify payment with backend
+            const verifyRes = await fetch(`${BACKEND_URL}/verify-payment`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(response),
+            });
+
+            const verify = await verifyRes.json();
+
+            if (verify.success) {
+              alert("Payment successful! Thank you for your purchase.");
+            } else {
+              alert("Payment verification failed. Please contact support.");
+            }
+          },
+          theme: {
+            color: "#222",
+          },
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
