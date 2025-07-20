@@ -129,11 +129,12 @@
   </footer>
 
   <script>
-    const BACKEND_URL = "https://mm-razorpay-server.onrender.com"; // <--- REPLACE this with your deployed backend URL
+    const BACKEND_URL = "https://mm-razorpay-server.onrender.com";
+    const RAZORPAY_KEY_ID = "rzp_test_QOr7aQhszxNo72"; // Replace with your real Key ID if needed
 
     async function payNow(productName, amount) {
       try {
-        // 1. Create Razorpay order from your backend
+        // Step 1: Create order from backend
         const orderRes = await fetch(`${BACKEND_URL}/create-order`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -144,16 +145,15 @@
 
         const order = await orderRes.json();
 
-        // 2. Open Razorpay checkout with order ID
+        // Step 2: Razorpay options
         const options = {
-          key: "rzp_test_QOr7aQhszxNo72", // Replace with your Razorpay Key ID (public)
+          key: RAZORPAY_KEY_ID,
           amount: order.amount,
           currency: "INR",
           name: "Menz Must",
           description: productName,
           order_id: order.id,
           handler: async function (response) {
-            // 3. Verify payment with backend
             const verifyRes = await fetch(`${BACKEND_URL}/verify-payment`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -163,20 +163,27 @@
             const verify = await verifyRes.json();
 
             if (verify.success) {
-              alert("Payment successful! Thank you for your purchase.");
+              alert("✅ Payment successful! Thank you for your purchase.");
             } else {
-              alert("Payment verification failed. Please contact support.");
+              alert("⚠️ Payment verification failed.");
             }
           },
-          theme: {
-            color: "#222",
+          prefill: {
+            name: "",
+            email: "",
+            contact: ""
           },
+          theme: {
+            color: "#222"
+          }
         };
 
         const rzp = new Razorpay(options);
         rzp.open();
+
       } catch (err) {
         alert("Error: " + err.message);
+        console.error("Payment error:", err);
       }
     }
   </script>
